@@ -8,14 +8,14 @@ import java.util.Set;
 
 public class WordleSolver {
 
-    private Set<Character> bonusLetters = new HashSet<>(Arrays.asList('r', 'l', 's', 't', 'n', 'e'));
+    public Set<Character> bonusLetters = new HashSet<>(Arrays.asList('r', 'l', 's', 't', 'n', 'e'));
 
     public static void main(String[] args) throws IOException {
-        new WordleSolver().run(5);
+        new WordleSolver().run(6);
     }
 
-    private void run(int wordLength) throws IOException {
-        Set<String> dictionary = getWords("en.json", wordLength);
+    public void run(int wordLength) throws IOException {
+        Set<String> dictionary = getWords("src/en.json", wordLength);
         Set<String> words = new HashSet<>(dictionary);
 
         try (Scanner scanner = new Scanner(System.in)) {
@@ -71,11 +71,12 @@ public class WordleSolver {
     private Set<String> getWords(String path, int wordLength) throws IOException {
         Set<String> words = new HashSet<>();
 
-        for (String w : Files.readAllLines(Paths.get(path)).get(0).split(",")) {
-            String word = w.replaceAll("[\\[\\],\\\"]", "");
+        for (String w : Files.readAllLines(Paths.get(path)).get(0).split("(?:\\\\n)+")) {
+//            String word = w.replaceAll("(?:\\\\n)+", "");
 
-            if (wordLength == word.length()) {
-                words.add(word);
+
+            if (wordLength == w.length()) {
+                words.add(w);
             }
         }
         return words;
@@ -86,25 +87,25 @@ public class WordleSolver {
         Set<String> newWords = new HashSet<>();
 
         for (String word : words) {
-            boolean isWordsValid = true;
+            boolean isWordValid = true;
             char[] wordChars = word.toCharArray();
 
             for (int i = 0; i < tryWord.length(); i++) {
                 char r = result.charAt(i);
 
                 //green: correct letter, correct position
-                //yellow: correct letter, incorect position
+                //yellow: correct letter, incorrect position
                 //red: incorrect letter
                 if ((r == 'g' && wordChars[i] != tryWord.charAt(i))
                         || (r == 'y' && (wordChars[i] == tryWord.charAt(i) || !contains(wordChars, tryWord.charAt(i))))
                         || (r == 'r' && contains(wordChars, tryWord.charAt(i)))) {
-                    isWordsValid = false;
+                    isWordValid = false;
                     break;
                 } else if (r == 'g') {
                     wordChars[i] = '-';
                 }
             }
-            if (isWordsValid) {
+            if (isWordValid) {
                 System.out.println(word);
                 newWords.add(word);
             }
